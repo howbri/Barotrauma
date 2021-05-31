@@ -38,21 +38,25 @@ namespace Barotrauma
         {
             public readonly List<ItemPrefab> ItemPrefabs;
             public int Amount;
+            public readonly float MaxCondition;
             public readonly float MinCondition;
             public readonly bool UseCondition;
 
-            public RequiredItem(ItemPrefab itemPrefab, int amount, float minCondition, bool useCondition)
+            public RequiredItem(ItemPrefab itemPrefab, int amount, float maxCondition, float minCondition, bool useCondition)
             {
                 ItemPrefabs = new List<ItemPrefab>() { itemPrefab };
                 Amount = amount;
+                MaxCondition = maxCondition;
                 MinCondition = minCondition;
                 UseCondition = useCondition;
+
             }
 
-            public RequiredItem(IEnumerable<ItemPrefab> itemPrefabs, int amount, float minCondition, bool useCondition)
+            public RequiredItem(IEnumerable<ItemPrefab> itemPrefabs, int amount, float maxCondition, float minCondition, bool useCondition)
             {
                 ItemPrefabs = new List<ItemPrefab>(itemPrefabs);
                 Amount = amount;
+                MaxCondition = maxCondition;
                 MinCondition = minCondition;
                 UseCondition = useCondition;
             }
@@ -106,6 +110,7 @@ namespace Barotrauma
                             continue;
                         }
 
+                        float maxCondition = subElement.GetAttributeFloat("maxcondition", 1.1f);
                         float minCondition = subElement.GetAttributeFloat("mincondition", 1.0f);
                         //Substract mincondition from required item's condition or delete it regardless?
                         bool useCondition = subElement.GetAttributeBool("usecondition", true);
@@ -119,10 +124,10 @@ namespace Barotrauma
                                 continue;
                             }
 
-                            var existing = RequiredItems.Find(r => r.ItemPrefabs.Count == 1 && r.ItemPrefabs[0] == requiredItem && MathUtils.NearlyEqual(r.MinCondition, minCondition));
+                            var existing = RequiredItems.Find(r => r.ItemPrefabs.Count == 1 && r.ItemPrefabs[0] == requiredItem && MathUtils.NearlyEqual(r.MaxCondition, maxCondition) && MathUtils.NearlyEqual(r.MinCondition, minCondition));
                             if (existing == null)
                             {
-                                RequiredItems.Add(new RequiredItem(requiredItem, count, minCondition, useCondition));
+                                RequiredItems.Add(new RequiredItem(requiredItem, count, maxCondition, minCondition, useCondition));
                             }
                             else
                             {
@@ -138,10 +143,10 @@ namespace Barotrauma
                                 continue;
                             }
 
-                            var existing = RequiredItems.Find(r => r.ItemPrefabs.SequenceEqual(matchingItems) && MathUtils.NearlyEqual(r.MinCondition, minCondition));
+                            var existing = RequiredItems.Find(r => r.ItemPrefabs.SequenceEqual(matchingItems) && MathUtils.NearlyEqual(r.MaxCondition, maxCondition) && MathUtils.NearlyEqual(r.MinCondition, minCondition));
                             if (existing == null)
                             {
-                                RequiredItems.Add(new RequiredItem(matchingItems, count, minCondition, useCondition));
+                                RequiredItems.Add(new RequiredItem(matchingItems, count, maxCondition, minCondition, useCondition));
                             }
                             else
                             {
