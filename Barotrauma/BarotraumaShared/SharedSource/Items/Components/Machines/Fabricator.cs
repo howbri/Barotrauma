@@ -493,7 +493,8 @@ namespace Barotrauma.Items.Components
             return 
                 item != null && 
                 requiredItem.ItemPrefabs.Contains(item.prefab) && 
-                item.Condition / item.Prefab.Health >= requiredItem.MinCondition;
+                item.Condition / item.Prefab.Health >= requiredItem.MinCondition &&
+                item.Condition / item.Prefab.Health <= requiredItem.MaxCondition;
         }
 
         public override XElement Save(XElement parentElement)
